@@ -203,7 +203,7 @@ def saveCSV(datasets, standards, algo, file_path, progress):
         
     file = open(file_path, "w")
     header = ["Sample", "Goodness", "Chl a/b", "Chl/Car", "Chl [uM]", "Car [uM]", "Chl a [uM]", "Chl b [uM]", 
-              "Beta 80 [uM]", "Lute 80 [uM]", "Neo 80 [uM]", "Viola 80 [uM]", "Zea 80 [uM]",
+              "Beta 80 [uM]", "Lute 80 [uM]", "Neo 80 [uM]", "Viola 80 [uM]", "Zea 80 [uM]", "Asta 80 [uM]",
               "Chl a 70 [uM]", "Chl a 90 [uM]", "Chl b 70 [uM]", "Chl b 90 [uM]"]
     writer = csv.DictWriter(file, fieldnames= header)  
     writer.writeheader()
@@ -216,7 +216,7 @@ def saveCSV(datasets, standards, algo, file_path, progress):
         chl_b_conc, chl_b_comp = compsAdder(chl_concents[2:4], chl_comps[2:4], "Chl b")
         chl_conc, chl_fit = compsAdder(chl_concents[0:4], chl_comps[0:4], "Chl fit")
         car_concents, car_comps = fitterCar(dataset, standards, chl_fit, algo)
-        car_conc, car_fit = compsAdder(car_concents[0:5], car_comps[0:5], "Car fit")
+        car_conc, car_fit = compsAdder(car_concents[0:6], car_comps[0:6], "Car fit")
         # choosen_subtracted = dataset.subtract(chl_fit) # doesn't matter here.
         tot_conc, tot_fit = compsAdder([chl_conc, car_conc], [chl_fit, car_fit], "Total fit")
 
@@ -230,6 +230,7 @@ def saveCSV(datasets, standards, algo, file_path, progress):
                          "Chl b [uM]": round(chl_b_conc, 3), "Beta 80 [uM]": round(car_concents[0], 3),
                          "Lute 80 [uM]": round(car_concents[1], 3), "Neo 80 [uM]": round(car_concents[2], 3),
                          "Viola 80 [uM]": round(car_concents[3], 3), "Zea 80 [uM]": round(car_concents[4], 3),
+                         "Asta 80 [uM]": round(car_concents[5], 3),
                          "Chl a 70 [uM]": round(chl_concents[0], 3), "Chl a 90 [uM]": round(chl_concents[1], 3),
                          "Chl b 70 [uM]": round(chl_concents[2], 3), "Chl b 90 [uM]": round(chl_concents[3], 3)})
         
@@ -239,48 +240,85 @@ def saveCSV(datasets, standards, algo, file_path, progress):
         
 
 
-def saveXLSX(datasets, standards, algo, file_path, progress, norm):
+def saveXLSX(datasets, standards, algo, file_path, progress, norm, checkChla, checkChlb, checkBeta, checkLute, checkNeo, checkViola, checkZea, checkAsta):
     
     db = xl.Database() # create a black pylightxl-db
     db.add_ws(ws="chlorocarfitter") # add a blank worksheet to the pylightxl-db
     
     # write the header:
-    header = ["Sample", "FitQual_Blue", "FitQual_Red",
-              "", # skip one column
-              "Chl/Car", "Chl a/b", 
-              "", # skip one column
-              # raw concetrations:
-              "Chl a [uM]", "Chl b [uM]", "Car [uM]", 
-              "Beta 80 [uM]", "Lute 80 [uM]", "Neo 80 [uM]", "Viola 80 [uM]", "Zea 80 [uM]",
-              # "Chl a 70 [uM]", "Chl a 90 [uM]", "Chl b 70 [uM]", "Chl b 90 [uM]", # not so useful for the final user!
-              # normalized values:
-              "", # skip one column
-              "Norm Chl a [uM]", "Norm Chl b [uM]", "Norm Car [uM]",
-              "Norm Beta 80 [uM]", "Norm Lute 80 [uM]", "Norm Neo 80 [uM]", "Norm Viola 80 [uM]", "Norm Zea 80 [uM]"]
-    for col_id, data in enumerate(header, start=1):
-        db.ws(ws="chlorocarfitter").update_index(row=1, col=col_id, val=data)
+    if checkChlb:
+        header = ["Sample", "FitQual_Blue", "FitQual_Red",
+                "", # skip one column
+                "Chl/Car", "Chl a/b", 
+                "", # skip one column
+                # raw concetrations:
+                "Chl a [uM]", "Chl b [uM]", "Car [uM]", 
+                "Beta 80 [uM]", "Lute 80 [uM]", "Neo 80 [uM]", "Viola 80 [uM]", "Zea 80 [uM]", "Asta 80 [uM]",
+                # "Chl a 70 [uM]", "Chl a 90 [uM]", "Chl b 70 [uM]", "Chl b 90 [uM]", # not so useful for the final user!
+                # normalized values:
+                "", # skip one column
+                "Norm Chl a [uM]", "Norm Chl b [uM]", "Norm Car [uM]",
+                "Norm Beta 80 [uM]", "Norm Lute 80 [uM]", "Norm Neo 80 [uM]", "Norm Viola 80 [uM]", "Norm Zea 80 [uM]"]
+        for col_id, data in enumerate(header, start=1):
+            db.ws(ws="chlorocarfitter").update_index(row=1, col=col_id, val=data)
+    else:
+        header = ["Sample", "FitQual_Blue", "FitQual_Red",
+            "", # skip one column
+            "Chl/Car", "", 
+            "", # skip one column
+            # raw concetrations:
+            "Chl a [uM]", "Chl b [uM]", "Car [uM]", 
+            "Beta 80 [uM]", "Lute 80 [uM]", "Neo 80 [uM]", "Viola 80 [uM]", "Zea 80 [uM]", "Asta 80 [uM]",
+            # "Chl a 70 [uM]", "Chl a 90 [uM]", "Chl b 70 [uM]", "Chl b 90 [uM]", # not so useful for the final user!
+            # normalized values:
+            "", # skip one column
+            "Norm Chl a [uM]", "Norm Chl b [uM]", "Norm Car [uM]",
+            "Norm Beta 80 [uM]", "Norm Lute 80 [uM]", "Norm Neo 80 [uM]", "Norm Viola 80 [uM]", "Norm Zea 80 [uM]"]
+        for col_id, data in enumerate(header, start=1):
+            db.ws(ws="chlorocarfitter").update_index(row=1, col=col_id, val=data)
     
     # write rows (one sample per row):
     i = 1
     for dataset in datasets:
         
-        chl_concents, chl_comps = fitterChl(dataset, standards, algo)
+        chl_concents, chl_comps = fitterChl(dataset, standards, algo, checkChla, checkChlb)
         chl_a_conc, chl_a_comp = compsAdder(chl_concents[0:2], chl_comps[0:2], "Chl a")
         chl_b_conc, chl_b_comp = compsAdder(chl_concents[2:4], chl_comps[2:4], "Chl b")
         chl_conc, chl_fit = compsAdder(chl_concents[0:4], chl_comps[0:4], "Chl fit")
-        car_concents, car_comps = fitterCar(dataset, standards, chl_fit, algo)
-        car_conc, car_fit = compsAdder(car_concents[0:5], car_comps[0:5], "Car fit")
+        car_concents, car_comps = fitterCar(dataset, standards, chl_fit, algo, checkBeta, checkLute, checkNeo, checkViola, checkZea, checkAsta)
+        car_conc, car_fit = compsAdder(car_concents[0:6], car_comps[0:6], "Car fit")
         # choosen_subtracted = dataset.subtract(chl_fit) # doesn't matter here.
         tot_conc, tot_fit = compsAdder([chl_conc, car_conc], [chl_fit, car_fit], "Total fit")
 
         # calculate the goodness of the fit:
-        goodness = calculateFttingError(dataset, tot_fit)
+        goodness = calculateFttingError(dataset, tot_fit, checkAsta)
         goodness_red = goodness[0]
         goodness_blue = goodness[1]
                                                  
-        samplerow = [dataset.label, goodness_blue, goodness_red,
+        if checkChlb:
+            samplerow = [dataset.label, goodness_blue, goodness_red,
+                "", # skip one column
+                round(chl_conc/car_conc, 3), round(chl_a_conc/chl_b_conc, 3),
+                "", # skip one column
+                # raw concetrations:
+                round(chl_a_conc, 3), round(chl_b_conc, 3), round(car_conc, 3), 
+                round(car_concents[0], 3), round(car_concents[1], 3), round(car_concents[2], 3), round(car_concents[3], 3), round(car_concents[4], 3), 
+                # round(chl_concents[0], 3), round(chl_concents[1], 3), round(chl_concents[2], 3), round(chl_concents[3], 3), # not so useful for the final user!
+                # normalized values:
+                "", # skip one column
+                round(norm * chl_a_conc /(chl_a_conc + chl_b_conc), 3), 
+                round(norm * chl_b_conc /(chl_a_conc + chl_b_conc), 3), 
+                round(norm * car_conc /(chl_a_conc + chl_b_conc), 3), 
+                round(norm * car_concents[0] /(chl_a_conc + chl_b_conc), 3), 
+                round(norm * car_concents[1] /(chl_a_conc + chl_b_conc), 3), 
+                round(norm * car_concents[2] /(chl_a_conc + chl_b_conc), 3), 
+                round(norm * car_concents[3] /(chl_a_conc + chl_b_conc), 3), 
+                round(norm * car_concents[4] /(chl_a_conc + chl_b_conc), 3),
+                round(norm * car_concents[5] /(chl_a_conc + chl_b_conc), 3)]
+        else:
+            samplerow = [dataset.label, goodness_blue, goodness_red,
                "", # skip one column
-               round(chl_conc/car_conc, 3), round(chl_a_conc/chl_b_conc, 3),
+               round(chl_conc/car_conc, 3), "",
                "", # skip one column
                # raw concetrations:
                round(chl_a_conc, 3), round(chl_b_conc, 3), round(car_conc, 3), 
@@ -295,8 +333,8 @@ def saveXLSX(datasets, standards, algo, file_path, progress, norm):
                round(norm * car_concents[1] /(chl_a_conc + chl_b_conc), 3), 
                round(norm * car_concents[2] /(chl_a_conc + chl_b_conc), 3), 
                round(norm * car_concents[3] /(chl_a_conc + chl_b_conc), 3), 
-               round(norm * car_concents[4] /(chl_a_conc + chl_b_conc), 3)]
-
+               round(norm * car_concents[4] /(chl_a_conc + chl_b_conc), 3),
+               round(norm * car_concents[5] /(chl_a_conc + chl_b_conc), 3)]
         
         for col_id, data in enumerate(samplerow, start=1):
             db.ws(ws="chlorocarfitter").update_index(row=1+i, col=col_id, val=data)
@@ -337,14 +375,30 @@ def redSubsetter(dataset):
 
 
 
-def fitterChl(dataset, standards, algo):
+def fitterChl(dataset, standards, algo, checkChla, checkChlb):
+
+    chl_sub = {}
     
-    chl_sub = {
-        "chla70_sub" : redSubsetter(standards["chla70"]),
-        "chla90_sub" : redSubsetter(standards["chla90"]),
-        "chlb70_sub" : redSubsetter(standards["chlb70"]),
-        "chlb90_sub" : redSubsetter(standards["chlb90"])
-    }
+    if checkChla:
+        chl_sub["chla70_sub"] = redSubsetter(standards["chla70"])
+        chl_sub["chla90_sub"] = redSubsetter(standards["chla90"])
+    else:
+        chl_sub["chla70_sub"] = redSubsetter(standards["null"])
+        chl_sub["chla90_sub"] = redSubsetter(standards["null"])
+    
+    if checkChlb:
+        chl_sub["chlb70_sub"] = redSubsetter(standards["chlb70"])
+        chl_sub["chlb90_sub"] = redSubsetter(standards["chlb90"])
+    else:
+        chl_sub["chlb70_sub"] = redSubsetter(standards["null"])
+        chl_sub["chlb90_sub"] = redSubsetter(standards["null"])
+
+    #chl_sub = {
+    #    "chla70_sub" : redSubsetter(standards["chla70"]),
+    #    "chla90_sub" : redSubsetter(standards["chla90"]),
+    #    "chlb70_sub" : redSubsetter(standards["chlb70"]),
+    #    "chlb90_sub" : redSubsetter(standards["chlb90"])
+    #}
     subsetted = redSubsetter(dataset) # the sample
     multip = [i * 1000000 for i in subsetted.y]
     
@@ -378,7 +432,7 @@ def fitterChl(dataset, standards, algo):
 
 
 
-def blueSubsetter(dataset):
+def blueSubsetter(dataset, checkAsta):
     
     """
     left_blue1 = dataset.x.index(410.0) 
@@ -402,7 +456,10 @@ def blueSubsetter(dataset):
     """
     # select lower en upper value (from 409.6 to 520) as described in manuscript:
     left_blue = dataset.x.index(409.6)
-    right_blue = dataset.x.index(520.8) # right end not included!
+    if checkAsta:
+        right_blue = dataset.x.index(600.4) # right end not included!
+    else:
+        right_blue = dataset.x.index(520.8)
     # take 0.8nm interval
     subset_blue_nm = dataset.x[left_blue : right_blue : 8]
     subset_blue_au = dataset.y[left_blue: right_blue : 8] 
@@ -411,21 +468,54 @@ def blueSubsetter(dataset):
 
 
 
-def fitterCar(dataset, standards, chl_fit, algo):
+def fitterCar(dataset, standards, chl_fit, algo, checkBeta, checkLute, checkNeo, checkViola, checkZea, checkAsta):
     
-    car_sub = {
-        "beta80_sub" : blueSubsetter(standards["beta80"]),
-        "lute80_sub" : blueSubsetter(standards["lute80"]),
-        "neo80_sub" : blueSubsetter(standards["neo80"]),
-        "viola80_sub" : blueSubsetter(standards["viola80"]),
-        "zea80_sub" : blueSubsetter(standards["zea80"])
-    }
+    car_sub = {}
+
+    if checkBeta:
+        car_sub["beta80_sub"] = blueSubsetter(standards["beta80"], checkAsta)
+    else:
+        car_sub["beta80_sub"] = blueSubsetter(standards["null"], checkAsta)
+    
+    if checkLute:
+        car_sub["lute80_sub"] = blueSubsetter(standards["lute80"], checkAsta)
+    else:
+        car_sub["lute80_sub"] = blueSubsetter(standards["null"], checkAsta)
+
+    if checkNeo:
+        car_sub["neo80_sub"] = blueSubsetter(standards["neo80"], checkAsta)
+    else:
+        car_sub["neo80_sub"] = blueSubsetter(standards["null"], checkAsta)
+
+    if checkViola:
+        car_sub["viola80_sub"] = blueSubsetter(standards["viola80"], checkAsta)
+    else:
+        car_sub["viola80_sub"] = blueSubsetter(standards["null"], checkAsta)
+
+    if checkZea:
+        car_sub["zea80_sub"] = blueSubsetter(standards["zea80"], checkAsta)
+    else:
+        car_sub["zea80_sub"] = blueSubsetter(standards["null"], checkAsta)
+
+    if checkAsta:
+        car_sub["asta80_sub"] = blueSubsetter(standards["asta80"], checkAsta)
+    else:
+        car_sub["asta80_sub"] = blueSubsetter(standards["null"], checkAsta)
+
+    #car_sub = {
+    #    "beta80_sub" : blueSubsetter(standards["beta80"]),
+    #    "lute80_sub" : blueSubsetter(standards["lute80"]),
+    #    "neo80_sub" : blueSubsetter(standards["neo80"]),
+    #    "viola80_sub" : blueSubsetter(standards["viola80"]),
+    #    "zea80_sub" : blueSubsetter(standards["zea80"]),
+    #    "asta80_sub" : blueSubsetter(standards["asta80"])
+    #}
     dataset_subtracted = dataset.subtract(chl_fit, "subtracted", color = "gray60")
-    subsetted = blueSubsetter(dataset_subtracted) # the sample
+    subsetted = blueSubsetter(dataset_subtracted, checkAsta) # the sample
     multip = [i * 1000000 for i in subsetted.y]
     
     a = ObjMatrix([multip]).transpose()
-    E = ObjMatrix([car_sub["beta80_sub"].y, car_sub["lute80_sub"].y, car_sub["neo80_sub"].y, car_sub["viola80_sub"].y, car_sub["zea80_sub"].y]).transpose()
+    E = ObjMatrix([car_sub["beta80_sub"].y, car_sub["lute80_sub"].y, car_sub["neo80_sub"].y, car_sub["viola80_sub"].y, car_sub["zea80_sub"].y, car_sub["asta80_sub"].y]).transpose()
     C = ObjMatrix()
     if algo == "OLS":
         C = libleasts.OLS(a, E)
@@ -452,6 +542,9 @@ def fitterCar(dataset, standards, chl_fit, algo):
     zea80_x = standards["zea80"].x
     zea80_y = [i * concents[4] / 1000000 for i in standards["zea80"].y]
     comps.append(ObjCoord(zea80_x, zea80_y, label = car_sub["zea80_sub"].label, color = "HotPink3"))
+    asta80_x = standards["asta80"].x
+    asta80_y = [i * concents[5] / 1000000 for i in standards["asta80"].y]
+    comps.append(ObjCoord(asta80_x, asta80_y, label = car_sub["asta80_sub"].label, color = "red"))
     
     return concents, comps
 
@@ -500,7 +593,7 @@ def calculateCaffarriEq(sample):
     return round(Cchla_ug, 3), round(Cchlb_ug,3), round(Cchla_nmol, 3), round(Cchlb_nmol,3)
     
     
-def calculateFttingError(measured, fitted):
+def calculateFttingError(measured, fitted, checkAsta):
 
     # Assume that datasets have the same length (4000, by construction):
     # So len(measured.y) is equal to len(fitted.y).
@@ -527,9 +620,9 @@ def calculateFttingError(measured, fitted):
 
     # Extract the red fitting region and the blue fitting region:
     measured_red = redSubsetter(measured)
-    measured_blue = blueSubsetter(measured)
+    measured_blue = blueSubsetter(measured, checkAsta)
     fitted_red = redSubsetter(fitted)
-    fitted_blue = blueSubsetter(fitted)
+    fitted_blue = blueSubsetter(fitted, checkAsta)
 
     # Here we want to calculate the normalized RMSE (root mean square error).
     # NRMSE = sqrt(sum((yAi - yBi)^2)/n)/mean(yA)

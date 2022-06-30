@@ -6,7 +6,7 @@ class ObjCoord(object):
     
     color_basket = ["deep sky blue", "steel blue", "gold", "goldenrod",
                     "indian red", "coral", "red", "maroon", "dark violet",
-                    "lime green", "forest green", "deep pink"]
+                    "lime green", "forest green", "deep pink", "red"]
     basket_index = 0
     
     

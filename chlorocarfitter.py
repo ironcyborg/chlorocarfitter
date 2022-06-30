@@ -4,6 +4,7 @@ def resourcePath(relative_path):
 
 
 
+from pickle import FALSE, TRUE
 from libplot import ObjPlot
 from libcoord import ObjCoord
 from libfuncs import parseMD, loadCSV, loadXLSX, saveCSV, saveXLSX, fitterChl, fitterCar, compsAdder, calculatePorraEq, calculateCaffarriEq, calculateFttingError
@@ -29,12 +30,14 @@ class MainFrame(tkinter.ttk.Frame):
             "chla70": loadCSV(resourcePath("standards/ChA-70-std3.csv"))[0],      
             "chla90": loadCSV(resourcePath("standards/ChA-90-std3.csv"))[0],      
             "chlb70": loadCSV(resourcePath("standards/ChB-70-std3.csv"))[0],       
-            "chlb90": loadCSV(resourcePath("standards/ChB-90-std3.csv"))[0],      
+            "chlb90": loadCSV(resourcePath("standards/ChB-90-std3.csv"))[0],
+            "asta80": loadCSV(resourcePath("standards/Asta-80-std3.csv"))[0],      
             "beta80": loadCSV(resourcePath("standards/Beta-80-std3.csv"))[0],     
             "lute80": loadCSV(resourcePath("standards/Lute-80-std3.csv"))[0],    
             "neo80": loadCSV(resourcePath("standards/Neo-80-std3.csv"))[0],     
             "viola80": loadCSV(resourcePath("standards/Viola-80-std3.csv"))[0],  
             "zea80": loadCSV(resourcePath("standards/Zea-80-std3.csv"))[0],     
+            "null": loadCSV(resourcePath("standards/Null.csv"))[0],
         }
         # make standards coherent with other datasets:
         for i in self.standards: 
@@ -79,19 +82,19 @@ class MainFrame(tkinter.ttk.Frame):
 
         # "Show manual" button
         self.button_info = tkinter.ttk.Button(self.frame_controls, text ="Show manual",  width = 10, command= self.onInfo)
-        self.button_info.grid(row=1, column = 1, columnspan=2, pady=(10,5))
+        self.button_info.grid(row=1, column = 1, columnspan=2, pady=(5,2))
 
         # "Clear all" button
         self.button_clear = tkinter.ttk.Button(self.frame_controls, text ="Clear all", width = 10, command = self.onClear)
-        self.button_clear.grid(row=2, column = 2, padx=(5,10), pady=5)
+        self.button_clear.grid(row=2, column = 2, padx=(5,10), pady=2)
 
         # "Load dataset" button
         self.button_load = tkinter.ttk.Button(self.frame_controls, text ="Load dataset", width = 10, command= self.onLoad)
-        self.button_load.grid(row=2, column = 1, padx=(10,5), pady=5)
+        self.button_load.grid(row=2, column = 1, padx=(10,5), pady=2)
 
         # First separator 
         self.sep1 = tkinter.ttk.Separator(self.frame_controls, orient="horizontal")
-        self.sep1.grid(row=3, column = 1,  columnspan=2, padx=(50,50), pady=10, sticky= "WE")
+        self.sep1.grid(row=3, column = 1,  columnspan=2, padx=(50,50), pady=5, sticky= "WE")
 
         # Listbox
         self.frame_file = tkinter.ttk.Frame(self.frame_controls)
@@ -100,7 +103,7 @@ class MainFrame(tkinter.ttk.Frame):
         self.scroll_file.config(command= self.list_file.yview)
         self.scroll_file.pack(side="right", fill="y")
         self.list_file.pack(side="left", fill="both", expand=1)
-        self.frame_file.grid(row=4, column=1, columnspan=2, padx=(10, 10), pady=5, sticky = "WE") 
+        self.frame_file.grid(row=4, column=1, columnspan=2, padx=(10, 10), pady=2, sticky = "WE") 
 
         # Radios
         self.frame_radio = tkinter.ttk.Frame(self.frame_controls)
@@ -113,28 +116,28 @@ class MainFrame(tkinter.ttk.Frame):
         self.radio_720_red = tkinter.ttk.Radiobutton(self.frame_radio, text="720z.+ red", variable= self.manipulation_var, value="720red", width=9)
         self.radio_720_red.grid(sticky = "W")
         self.radio_720.invoke()
-        self.frame_radio.grid(row=5, column =1, pady =5, padx=(10,5))
+        self.frame_radio.grid(row=5, column =1, pady =5, padx=(5,2))
         
         # "Plot selected" button
         self.button_plot = tkinter.ttk.Button(self.frame_controls, text ="Plot selected", width = 10, command= self.onPlot)
-        self.button_plot.grid(row=5, column = 2,  padx=(5,10), pady=5)
+        self.button_plot.grid(row=5, column = 2,  padx=(5,10), pady=2)
 
         # Second separator 
         self.sep2 = tkinter.ttk.Separator(self.frame_controls, orient="horizontal")
-        self.sep2.grid(row=6, column = 1,  columnspan=2, padx=(50,50), pady=10, sticky= "WE")
+        self.sep2.grid(row=6, column = 1,  columnspan=2, padx=(50,50), pady=5, sticky= "WE")
 
         # Fitting sample Combobox
         self.var_fitter = tkinter.IntVar() 
         self.combo_fitter = tkinter.ttk.Combobox(self.frame_controls, width=5, textvariable= self.var_fitter, state= "readonly")
         self.combo_fitter["values"] = [""]
         self.combo_fitter.current(0) # Fills the combobox with nothing. Otherwise default value on creation is "0".
-        self.combo_fitter.grid(row=7, column=1, columnspan=2, padx=(10, 10), pady=5, sticky = "WE")
+        self.combo_fitter.grid(row=7, column=1, columnspan=2, padx=(10, 10), pady=2, sticky = "WE")
         
         # Normalization factor
         self.norm_var = tkinter.StringVar()
         self.norm_var.set('1')
         self.norm_label = tkinter.ttk.Label(self.frame_controls, width=5, text="Norm. factor:", anchor="e") # anchor="e" is right-aligned
-        self.norm_label.grid(row=8, column=1, padx=(10, 5), pady=5, sticky="WE")
+        self.norm_label.grid(row=8, column=1, padx=(10, 5), pady=2, sticky="WE")
         # validatecommand is a function and returns True if the change is accepted
         # validatecommand is called every time the Entry is modified
         # '%S' means: inserted or deleted char is passed as argument to only_numbers function
@@ -142,18 +145,18 @@ class MainFrame(tkinter.ttk.Frame):
             return char.isdigit() # Exponents, like ², are also considered to be a digit.
         validation = self.register(only_numbers)
         self.norm_entry = tkinter.ttk.Entry(self.frame_controls, width=5, textvariable=self.norm_var, validate="key", validatecommand=(validation, '%S'))
-        self.norm_entry.grid(row=8, column=2, padx=(5, 10), pady=5, sticky="WE")
+        self.norm_entry.grid(row=8, column=2, padx=(5, 10), pady=2, sticky="WE")
         
         # Algorithm Combobox
         self.combo_algo = tkinter.ttk.Combobox(self.frame_controls, width=5, state= "readonly")
         self.combo_algo["values"] = ["Caffarri fit", "Porra eq", "Caffarri eq"]
         self.combo_algo.current(0) # Fills the combobox with nothing. Otherwise default value on creation is "0".
         self.combo_algo.bind("<<ComboboxSelected>>", self.__onAlgoChange)
-        self.combo_algo.grid(row=9, column=1, padx=(10, 5), pady=5, sticky = "WE")
+        self.combo_algo.grid(row=9, column=1, padx=(10, 5), pady=2, sticky = "WE")
 
         # "Fit selected" button
         self.button_fitter = tkinter.ttk.Button(self.frame_controls, text= "Fit selected", width= 10, command= self.onFitting)
-        self.button_fitter.grid(row=9, column=2, padx=(5,10), pady=5)
+        self.button_fitter.grid(row=9, column=2, padx=(5,10), pady=2)
 
         # Fitting results
         self.frame_results = tkinter.ttk.Frame(self.frame_controls)
@@ -163,28 +166,59 @@ class MainFrame(tkinter.ttk.Frame):
         self.scroll_results.config(command= self.text_results.yview)
         self.scroll_results.pack(side="right", fill="y")
         self.text_results.pack(side="left", fill="both", expand=1)
-        self.frame_results.grid(row=10, column = 1, columnspan=2, padx=(10, 10), pady=5, sticky = "WE")
+        self.frame_results.grid(row=10, column = 1, columnspan=2, padx=(10, 10), pady=2, sticky = "WE")
         
         # "Fit all & Save" button
         self.button_save = tkinter.ttk.Button(self.frame_controls, text ="Fit all & Save", width = 10, command = self.onSave)
-        self.button_save.grid(row=11, column = 2,  padx=(5,10), pady=(5))
+        self.button_save.grid(row=11, column = 2,  padx=(5,10), pady=(2))
         
         # "Hide details" button
         self.button_hide = tkinter.ttk.Button(self.frame_controls, text ="Hide details", width = 10, command= self.onHide)
-        self.button_hide.grid(row=11, column = 1,  padx=(10,5), pady=(5))
+        self.button_hide.grid(row=11, column = 1,  padx=(10,5), pady=(2))
         self.button_hide["state"] = "disabled"
         
         # STATUS BAR / PROGRESS BAR
         self.string_status = tkinter.StringVar()
         self.label_status = tkinter.ttk.Label(self.frame_controls,  width=10, textvariable= self.string_status)
-        self.label_status.grid(row=12, column=1, columnspan=2, padx=(10,10), pady=(5, 10), sticky= "WE")
+        self.label_status.grid(row=12, column=1, columnspan=2, padx=(10,10), pady=(2, 5), sticky= "WE")
         self.string_status.set("Starting up... Ready!")
         self.progress = tkinter.ttk.Progressbar(self.frame_controls, orient = "horizontal", mode = 'determinate')
-        self.progress.grid(row=12, column=1, columnspan=2, padx=(10,10), pady=(5, 10), sticky= "WE")
+        self.progress.grid(row=12, column=1, columnspan=2, padx=(10,10), pady=(2, 5), sticky= "WE")
         self.progress["value"] = 70
         self.progress.grid_remove()
-             
 
+        # Checkboxes
+        self.checkChla = tkinter.BooleanVar(self.frame_controls, True)
+        self.checkChlb = tkinter.BooleanVar(self.frame_controls, True)
+        self.checkBeta = tkinter.BooleanVar(self.frame_controls, True)
+        self.checkLute = tkinter.BooleanVar(self.frame_controls, True)
+        self.checkNeo = tkinter.BooleanVar(self.frame_controls, True)
+        self.checkViola = tkinter.BooleanVar(self.frame_controls, True)
+        self.checkZea = tkinter.BooleanVar(self.frame_controls, True)
+        self.checkAsta = tkinter.BooleanVar(self.frame_controls, False)
+        self.checkCantha = tkinter.BooleanVar(self.frame_controls, False)
+        self.checkChl_label = tkinter.ttk.Label(self.frame_controls, text="Chlorophylls:", width = 10)
+        self.checkChl_label.grid(row=13, column=1, columnspan=2, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Chla = tkinter.Checkbutton(self.frame_controls, text="Chl a", variable=self.checkChla, onvalue = True, offvalue = False, state = tkinter.DISABLED)
+        self.checkbox_Chla.grid(row=14, column=1, columnspan=1, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Chlb = tkinter.Checkbutton(self.frame_controls, text="Chl b", variable=self.checkChlb, onvalue = True, offvalue = False)
+        self.checkbox_Chlb.grid(row=14, column=2, columnspan=1, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkCar_label = tkinter.ttk.Label(self.frame_controls, text="Carotenoids:", width = 10)
+        self.checkCar_label.grid(row=15, column=1, columnspan=2, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Beta = tkinter.Checkbutton(self.frame_controls, text="Beta", variable=self.checkBeta, onvalue = True, offvalue = False)
+        self.checkbox_Beta.grid(row=16, column=1, columnspan=1, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Lute = tkinter.Checkbutton(self.frame_controls, text="Lute", variable=self.checkLute, onvalue = True, offvalue = False)
+        self.checkbox_Lute.grid(row=16, column=2, columnspan=1, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Neo = tkinter.Checkbutton(self.frame_controls, text="Neo", variable=self.checkNeo, onvalue = True, offvalue = False)
+        self.checkbox_Neo.grid(row=17, column=1, columnspan=1, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Viola = tkinter.Checkbutton(self.frame_controls, text="Viola", variable=self.checkViola, onvalue = True, offvalue = False)
+        self.checkbox_Viola.grid(row=17, column=2, columnspan=1, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Zea = tkinter.Checkbutton(self.frame_controls, text="Zea", variable=self.checkZea, onvalue = True, offvalue = False)
+        self.checkbox_Zea.grid(row=18, column=1, columnspan=1, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Asta = tkinter.Checkbutton(self.frame_controls, text="Asta", variable=self.checkAsta, onvalue = True, offvalue = False)
+        self.checkbox_Asta.grid(row=18, column=2, columnspan=1, padx=(10,10), pady=(2, 2), sticky= "WE")
+        self.checkbox_Cantha = tkinter.Checkbutton(self.frame_controls, text="Cantha", variable=self.checkCantha, onvalue = True, offvalue = False, state = tkinter.DISABLED)
+        self.checkbox_Cantha.grid(row=19, column=1, columnspan=2, padx=(10,10), pady=(2, 2), sticky= "WE")
 
     def onInfo(self):
         
@@ -371,7 +405,7 @@ class MainFrame(tkinter.ttk.Frame):
         
         # create p2 and p3 if needed, and activate button_hide
         if (self.p2 == None and self.p3 == None):
-            self.p2 = ObjPlot(self.frame_canvas, beginX=350, endX=550, title="Carotenoids fit", bg ="#ffffff", labelX = "nm", labelY = "au", pixelHeight = 300, xTicks = 6, yTicks = 3);
+            self.p2 = ObjPlot(self.frame_canvas, beginX=350, endX=600, title="Carotenoids fit", bg ="#ffffff", labelX = "nm", labelY = "au", pixelHeight = 300, xTicks = 6, yTicks = 3);
             self.p2.grid(row=2, column = 1, sticky="WENS")
             self.p3 = ObjPlot(self.frame_canvas, beginX=590, endX=700, title="Chlorophylls fit", bg ="#ffffff", labelX = "nm", labelY = "au", pixelHeight = 300, xTicks = 6, yTicks = 3);
             self.p3.grid(row=2, column = 2, sticky="WENS")
@@ -400,20 +434,22 @@ class MainFrame(tkinter.ttk.Frame):
         if norm == '': self.norm_var.set('1')
         norm = int(self.norm_var.get())
 
+        # get checkboxes value
+
 
         # calculate contributions 
-        chl_concents, chl_comps = fitterChl(choosen, self.standards, self.combo_algo.get())
+        chl_concents, chl_comps = fitterChl(choosen, self.standards, self.combo_algo.get(), self.checkChla.get(), self.checkChlb.get())
         chl_a_conc, chl_a_comp = compsAdder(chl_concents[0:2], chl_comps[0:2], "Chl a fit", color = "SteelBlue4")
         chl_b_conc, chl_b_comp = compsAdder(chl_concents[2:4], chl_comps[2:4], "Chl b fit", color = "green4")
         chl_conc, chl_fit = compsAdder(chl_concents[0:4], chl_comps[0:4], "Chl fit", color = "DarkOliveGreen3")
-        car_concents, car_comps = fitterCar(choosen, self.standards, chl_fit, self.combo_algo.get())
-        car_conc, car_fit = compsAdder(car_concents[0:5], car_comps[0:5], "Car fit", color = "tomato")
+        car_concents, car_comps = fitterCar(choosen, self.standards, chl_fit, self.combo_algo.get(), self.checkBeta.get(), self.checkLute.get(), self.checkNeo.get(), self.checkViola.get(), self.checkZea.get(), self.checkAsta.get())
+        car_conc, car_fit = compsAdder(car_concents[0:6], car_comps[0:6], "Car fit", color = "tomato")
         choosen_subtracted = choosen.subtract(chl_fit, choosen.label + " sub", color = "gray60")
         tot_conc, tot_fit = compsAdder([chl_conc, car_conc], [chl_fit, car_fit], "Total fit", color = "brown")
         
 
         # calculate the goodness of the fit:
-        goodness = calculateFttingError(choosen, tot_fit)
+        goodness = calculateFttingError(choosen, tot_fit, self.checkAsta.get())
         goodness_red = goodness[0]
         goodness_blue = goodness[1]
 
@@ -448,7 +484,8 @@ class MainFrame(tkinter.ttk.Frame):
         self.text_results.configure(state="normal") # Enables the Text widget to be programmatically filled.
         self.text_results.delete("1.0", "end")
         self.text_results.insert("end", choosen.label + " report: \n\n", "norm")
-        self.text_results.insert("end", "Chl", "norm", " a", "chla", "/", "norm", "b: ", "chlb", str(round(chl_a_conc/chl_b_conc, 3)) + "\n", "norm")
+        if self.checkChlb.get():
+            self.text_results.insert("end", "Chl", "norm", " a", "chla", "/", "norm", "b: ", "chlb", str(round(chl_a_conc/chl_b_conc, 3)) + "\n", "norm")
         self.text_results.insert("end", "Chl", "chl", "/", "norm", "Car: ", "car", str(round(chl_conc/car_conc, 3)) + "\n", "norm")
         # Raw concentrations
         # self.text_results.insert("end", "Raw concentrations: \n", "raw")
@@ -571,7 +608,7 @@ class MainFrame(tkinter.ttk.Frame):
 
         self.progress.grid() # show progress bar
         # saveCSV(self.datasets, self.standards, self.combo_algo.get(), file_path, self.progress)
-        saveXLSX(self.datasets, self.standards, self.combo_algo.get(), file_path, self.progress, norm)
+        saveXLSX(self.datasets, self.standards, self.combo_algo.get(), file_path, self.progress, norm, self.checkChla.get(), self.checkChlb.get(), self.checkBeta.get(), self.checkLute.get(), self.checkNeo.get(), self.checkViola.get(), self.checkZea.get(), self.checkAsta.get())
         self.progress.grid_remove() # hide progress bar
     
         self.string_status.set("All saved!")
