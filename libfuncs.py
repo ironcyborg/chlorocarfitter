@@ -258,7 +258,7 @@ def saveXLSX(datasets, standards, algo, file_path, progress, norm, checkChla, ch
                 # normalized values:
                 "", # skip one column
                 "Norm Chl a [uM]", "Norm Chl b [uM]", "Norm Car [uM]",
-                "Norm Beta 80 [uM]", "Norm Lute 80 [uM]", "Norm Neo 80 [uM]", "Norm Viola 80 [uM]", "Norm Zea 80 [uM]"]
+                "Norm Beta 80 [uM]", "Norm Lute 80 [uM]", "Norm Neo 80 [uM]", "Norm Viola 80 [uM]", "Norm Zea 80 [uM]", "Norm Asta 80 [uM]"]
         for col_id, data in enumerate(header, start=1):
             db.ws(ws="chlorocarfitter").update_index(row=1, col=col_id, val=data)
     else:
@@ -273,7 +273,7 @@ def saveXLSX(datasets, standards, algo, file_path, progress, norm, checkChla, ch
             # normalized values:
             "", # skip one column
             "Norm Chl a [uM]", "Norm Chl b [uM]", "Norm Car [uM]",
-            "Norm Beta 80 [uM]", "Norm Lute 80 [uM]", "Norm Neo 80 [uM]", "Norm Viola 80 [uM]", "Norm Zea 80 [uM]"]
+            "Norm Beta 80 [uM]", "Norm Lute 80 [uM]", "Norm Neo 80 [uM]", "Norm Viola 80 [uM]", "Norm Zea 80 [uM]",  "Norm Asta 80 [uM]"]
         for col_id, data in enumerate(header, start=1):
             db.ws(ws="chlorocarfitter").update_index(row=1, col=col_id, val=data)
     
@@ -302,7 +302,7 @@ def saveXLSX(datasets, standards, algo, file_path, progress, norm, checkChla, ch
                 "", # skip one column
                 # raw concetrations:
                 round(chl_a_conc, 3), round(chl_b_conc, 3), round(car_conc, 3), 
-                round(car_concents[0], 3), round(car_concents[1], 3), round(car_concents[2], 3), round(car_concents[3], 3), round(car_concents[4], 3), 
+                round(car_concents[0], 3), round(car_concents[1], 3), round(car_concents[2], 3), round(car_concents[3], 3), round(car_concents[4], 3), round(car_concents[5], 3),
                 # round(chl_concents[0], 3), round(chl_concents[1], 3), round(chl_concents[2], 3), round(chl_concents[3], 3), # not so useful for the final user!
                 # normalized values:
                 "", # skip one column
@@ -322,7 +322,7 @@ def saveXLSX(datasets, standards, algo, file_path, progress, norm, checkChla, ch
                "", # skip one column
                # raw concetrations:
                round(chl_a_conc, 3), round(chl_b_conc, 3), round(car_conc, 3), 
-               round(car_concents[0], 3), round(car_concents[1], 3), round(car_concents[2], 3), round(car_concents[3], 3), round(car_concents[4], 3), 
+               round(car_concents[0], 3), round(car_concents[1], 3), round(car_concents[2], 3), round(car_concents[3], 3), round(car_concents[4], 3), round(car_concents[5], 3),
                # round(chl_concents[0], 3), round(chl_concents[1], 3), round(chl_concents[2], 3), round(chl_concents[3], 3), # not so useful for the final user!
                # normalized values:
                "", # skip one column
@@ -339,7 +339,7 @@ def saveXLSX(datasets, standards, algo, file_path, progress, norm, checkChla, ch
         for col_id, data in enumerate(samplerow, start=1):
             db.ws(ws="chlorocarfitter").update_index(row=1+i, col=col_id, val=data)
         
-        # incrment the progress bar:
+        # increment the progress bar:
         progress['value'] = (i)/len(datasets)*100
         progress.update_idletasks()
         i += 1
